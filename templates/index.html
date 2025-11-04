@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CXR Analysis Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- Tailwind配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#36BFFA',
+                        accent: '#0FC6C2',
+                        neutral: '#F5F7FA',
+                        'neutral-dark': '#E5E6EB',
+                        danger: '#F53F3F',
+                        success: '#00B42A',
+                        warning: '#FF7D00',
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', system-ui, sans-serif;
+            overflow: hidden;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        
+        .shadow-custom {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .shadow-lg-custom {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .scrollbar-thin::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .scrollbar-thin::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        
+        .chat-history-item {
+            position: relative;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .chat-history-item:hover {
+            background-color: #f8fafc;
+            border-left-color: #165DFF;
+            transform: translateX(2px);
+        }
+        
+        .chat-history-item.active {
+            background-color: #eff6ff;
+            border-left-color: #165DFF;
+        }
+        
+        .resize-handle {
+            position: absolute;
+            top: 0;
+            width: 4px;
+            height: 100%;
+            cursor: col-resize;
+            background: transparent;
+            transition: background 0.2s;
+            z-index: 10;
+        }
+        
+        .resize-handle:hover {
+            background: linear-gradient(90deg, transparent, #165DFF, transparent);
+        }
+        
+        .resize-handle:active {
+            background: #165DFF;
+        }
+        
+        .resize-handle-left {
+            right: -2px;
+        }
+        
+        .resize-handle-right {
+            left: -2px;
+        }
+        
+        #drop-area {
+            transition: all 0.3s ease;
+        }
+        
+        /* 拖拽悬停特殊效果 */
+        #drop-area.drag-over {
+            border-color: #165DFF;
+            background-color: #eff6ff;
+            transform: scale(1.02);
+        }
+        #drop-area:hover {
+            border-color: #165DFF;
+            background-color: #eff6ff;
+            transform: scale(1.02);
+        }
+                
+        .btn-primary {
+            background: linear-gradient(135deg, #165DFF 0%, #0ea5e9 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(22, 93, 255, 0.3);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        
+        .observation-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .observation-badge:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .observation-positive {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #dc2626;
+        }
+        
+        .observation-negative {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            color: #16a34a;
+        }
+        
+        .observation-uncertain {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            color: #d97706;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .pulse-subtle {
+            animation: pulseSubtle 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulseSubtle {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.8;
+            }
+        }
+        
+        .vqa-message {
+            animation: messageSlide 0.3s ease-out;
+        }
+        
+        @keyframes messageSlide {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-neutral min-h-screen flex flex-col">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-md sticky top-0 z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-heartbeat text-primary text-2xl"></i>
+                <h1 class="text-xl md:text-2xl font-bold text-gray-800">CXR Analyzer</h1>
+            </div>
+            <button class="md:hidden text-gray-600 hover:text-primary">
+                <i class="fa fa-bars text-xl"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- 主要内容区 -->
+    <main class="flex h-[calc(100vh-73px)] overflow-hidden">
+        <!-- 左侧：可调整宽度的分析历史侧边栏 -->
+        <aside id="history-sidebar" class="bg-white shadow-custom border-r border-gray-200 flex-shrink-0 relative" style="width: 280px; min-width: 200px; max-width: 400px;">
+            <div class="resize-handle resize-handle-left"></div>
+            
+            <div class="h-full flex flex-col">
+                <div class="p-4 border-b border-gray-200">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Recent Analysis</h3>
+                        <button class="text-xs text-primary hover:text-primary/80 transition-colors">
+                            Clear All
+                        </button>
+                    </div>
+                    <div class="relative">
+                        <input type="text" placeholder="Search history..." class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary pl-9">
+                        <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                    </div>
+                </div>
+                
+                <div id="history-list" class="flex-1 overflow-y-auto scrollbar-thin p-4">
+                    <div class="text-gray-400 text-sm text-center py-12">
+                        <i class="fa fa-history text-4xl mb-3 opacity-30"></i>
+                        <p>No recent analysis</p>
+                        <p class="text-xs mt-1">Upload an image to get started</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 中间：图像上传和显示-->
+        <section id="center-pane" class="flex-1 flex flex-col bg-neutral relative min-w-[400px]">
+            <div class="resize-handle resize-handle-right" style="right: -2px;"></div>
+            
+            <!-- Upload Area -->
+            <div id="upload-container" class="flex-1 flex items-center justify-center p-8">
+                <div class="w-full max-w-2xl">
+                    <div id="drop-area" class="border-2 border-dashed border-gray-300 rounded-2xl p-12 text-center bg-white shadow-custom hover:shadow-lg-custom transition-all cursor-pointer">
+                        <input type="file" id="file-input" accept="image/*" class="hidden">
+                        <div class="mb-4">
+                            <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-full mb-4">
+                                <i class="fa fa-cloud-upload text-4xl text-primary"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Upload Chest X-Ray</h3>
+                        <p class="text-gray-600 mb-1">Drag and drop your image here</p>
+                        <p class="text-gray-400 text-sm mb-6">or</p>
+                        <button id="browse-btn" class="btn-primary text-white px-6 py-3 rounded-lg font-medium inline-flex items-center space-x-2">
+                            <i class="fa fa-folder-open"></i>
+                            <span>Browse Files</span>
+                        </button>
+                        <p class="text-gray-400 text-xs mt-6">Supports JPG, PNG, DICOM • Max 10MB</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Image Display & Analysis -->
+            <div id="image-analysis-container" class="hidden flex-1 flex flex-col overflow-hidden">
+                <div class="flex-1 overflow-y-auto scrollbar-thin">
+                    <!-- Image Display -->
+                    <div class="p-6 bg-white border-b border-gray-200">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800 flex items-center mr-4">
+                                <i class="fa fa-image text-primary mr-2"></i>
+                                Chest X-Ray Image
+                            </h3>
+                            <div class="flex items-center space-x-2">
+                                <!-- Visual Grounding Toggle -->
+                                <div class="flex items-center">
+                                    <span class="text-sm text-gray-600 mr-2">Visual Grounding</span>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" id="visual-grounding-toggle" class="sr-only peer">
+                                        <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                                    </label>
+                                </div>                                
+                                <button id="vqa-save-btn" class="text-gray-600 hover:text-primary transition-colors p-2 rounded-lg hover:bg-gray-100" title="Save VQA">
+                                    <i class="fa fa-save"></i>
+                                </button>
+                                <button class="text-gray-600 hover:text-primary transition-colors p-2 rounded-lg hover:bg-gray-100" title="Download">
+                                    <i class="fa fa-download"></i>
+                                </button>
+                                <button id="remove-image-btn" class="text-red-500 hover:text-red-600 transition-colors p-2 rounded-lg hover:bg-red-50" title="Remove">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="relative bg-gray-900 rounded-xl overflow-hidden" style="height: 400px;">
+                            <img id="cxr-image" src="" alt="Chest X-Ray" class="w-full h-full object-contain">
+                            <!-- 用于绘制边界框的Canvas（覆盖在图像上） -->
+                            <canvas id="grounding-canvas" class="absolute top-0 left-0 w-full h-full pointer-events-none"></canvas>                            
+                            <div id="image-loading" class="hidden absolute inset-0 bg-black/50 flex items-center justify-center">
+                                <div class="text-center">
+                                    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white mx-auto mb-3"></div>
+                                    <p class="text-white text-sm">Loading image...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab 切换栏 -->
+                    <div class="px-6 bg-neutral border-b border-gray-200">
+                        <div class="flex border-b border-gray-200">
+                            <!-- Report Tab -->
+                            <button id="report-tab" class="tab-btn py-4 px-6 text-sm font-medium text-gray-500 hover:text-primary transition-colors border-b-2 border-transparent">
+                                <i class="fa fa-file-text-o mr-2"></i>Report
+                            </button>
+                            <!-- Observation Tab -->
+                            <button id="observation-tab" class="tab-btn py-4 px-6 text-sm font-medium text-primary border-b-2 border-primary transition-colors">
+                                <i class="fa fa-stethoscope mr-2"></i>Observation
+                            </button>
+                        </div>
+                    </div>
+            
+                    <!-- Analysis Results  -->
+                    <div class="p-6 bg-neutral">
+                        <!-- 1. Report 内容区 -->
+                        <div id="report-content" class="tab-content hidden">
+                            <div class="bg-white rounded-xl shadow-custom p-6">
+                                <div class="flex items-center justify-between mb-6">
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-800">Chest X-Ray Report</h4>
+                                        <p class="text-sm text-gray-500 mt-1">Comprehensive medical analysis report</p>
+                                    </div>
+                                    <button class="px-3 py-1 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary/90 transition-colors">
+                                        <i class="fa fa-download mr-1"></i>Export
+                                    </button>
+                                </div>
+                                
+                                <!-- Report 内容-->
+                                <div id="report-loading" class="py-12 text-center hidden">
+                                    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
+                                    <p class="text-gray-600 font-medium">Generating report...</p>
+                                </div>
+                                
+                                <div id="report-data" class="space-y-6">
+                                    <div class="p-4 bg-gray-50 rounded-lg">
+                                        <h5 class="text-base font-semibold text-gray-800 mb-3">Patient Information</h5>
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
+                                            <div><span class="font-medium text-gray-700">Name:</span> <span id="patient-name">-</span></div>
+                                            <div><span class="font-medium text-gray-700">Age:</span> <span id="patient-age">-</span></div>
+                                            <div><span class="font-medium text-gray-700">Gender:</span> <span id="patient-gender">-</span></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="space-y-3 text-gray-700">
+                                        <h5 class="text-base font-semibold text-gray-800">Findings Summary</h5>
+                                        <p class="text-sm leading-relaxed" id="findings-summary">
+                                            No report generated yet. Please ensure the X-ray analysis is complete to generate a comprehensive report.
+                                        </p>
+                                    </div>
+                                    
+                                    <div class="space-y-3 text-gray-700">
+                                        <h5 class="text-base font-semibold text-gray-800">Recommendations</h5>
+                                        <ul class="text-sm leading-relaxed list-disc pl-5" id="recommendations">
+                                            <li>Review observation results for detailed AI-detected findings.</li>
+                                            <li>Consult a radiologist for professional interpretation.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+            
+                        <!-- 2. Observation 内容区-->
+                        <div id="observation-content" class="tab-content">
+                            <div class="bg-white rounded-xl shadow-custom p-6">
+                                <div class="flex items-center justify-between mb-6">
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-800">CheXpert Observations</h4>
+                                        <p class="text-sm text-gray-500 mt-1">AI-detected medical findings</p>
+                                    </div>
+                                    <span class="px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full">14 categories</span>
+                                </div>
+                                
+                                <div id="classification-loading" class="py-12 text-center hidden">
+                                    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
+                                    <p class="text-gray-600 font-medium">Analyzing X-ray...</p>
+                                    <p class="text-gray-400 text-sm mt-2">This may take a few moments</p>
+                                </div>
+                                
+                                <div id="classification-data" class="hidden">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+                                        <!-- Classification results will be populated here -->
+                                    </div>
+                                    
+                                    <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                                        <h5 class="text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                                            <i class="fa fa-bar-chart text-primary mr-2"></i>
+                                            Confidence Distribution
+                                        </h5>
+                                        <div style="height: 200px;">
+                                            <canvas id="classification-chart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 右侧：VQA功能-->
+        <aside id="vqa-sidebar" class="bg-white shadow-custom border-l border-gray-200 flex-shrink-0 relative" style="width: 380px; min-width: 300px; max-width: 500px;">
+            <div class="resize-handle resize-handle-right"></div>
+            
+            <div class="h-full flex flex-col">
+                <div class="p-4 border-b border-gray-200 bg-gradient-to-r from-primary/5 to-secondary/5">
+                    <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                        <div class="bg-primary p-2 rounded-lg mr-3">
+                            <i class="fa fa-comments-o text-white"></i>
+                        </div>
+                        <div>
+                            <div>Visual Q&A</div>
+                            <p class="text-xs text-gray-500 font-normal">Ask questions about the X-ray</p>
+                        </div>
+                    </h3>
+                </div>
+                
+                <div class="flex-1 overflow-y-auto scrollbar-thin p-4 bg-neutral">
+                    <div id="vqa-answers" class="space-y-3">
+                        <div class="text-center py-12 text-gray-400">
+                            <i class="fa fa-comment-o text-5xl mb-3 opacity-30"></i>
+                            <p class="text-sm">No questions yet</p>
+                            <p class="text-xs mt-1">Start by asking about the X-ray</p>
+                        </div>
+                    </div>
+                    
+                    <div id="vqa-loading" class="hidden py-8 text-center">
+                        <div class="inline-flex items-center space-x-2 bg-white px-4 py-3 rounded-lg shadow-custom">
+                            <div class="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-primary"></div>
+                            <span class="text-gray-600 text-sm">Processing...</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-4 border-t border-gray-200 bg-white">
+                    <div class="mb-3">
+                        <div class="flex gap-2">
+                            <input type="text" id="vqa-question" placeholder="Ask a question..." class="flex-1 px-4 py-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary">
+                            <button id="vqa-submit" class="btn-primary text-white px-5 rounded-lg hover:shadow-lg transition-all">
+                                <i class="fa fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button class="text-xs px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-colors">
+                            Is there consolidation?
+                        </button>
+                        <button class="text-xs px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-colors">
+                            Are lungs clear?
+                        </button>
+                        <button class="text-xs px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-colors">
+                            Heart size normal?
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+<!-- 记得要加type="module"，不然里面用了ES6 import/export语法，默认情况下浏览器不认普通<script>的import -->
+<script type="module" src="/static/js/main.js"></script> 
+</body>
+</html>
+</html>

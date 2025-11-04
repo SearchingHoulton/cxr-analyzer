@@ -1,0 +1,34 @@
+{
+  "all": [
+    {
+      "timestamp": "2025-11-03T18:03:30.943157",
+      "grounding": {
+        "boxes": [],
+        "labels": []
+      }
+    },
+    {
+      "timestamp": "2025-11-03T18:30:09.214597",
+      "grounding": {
+        "boxes": [],
+        "labels": [],
+        "timestamp": "2025-11-03T18:30:09.214597"
+      }
+    }
+  ],
+  "timestamp": "2025-11-04T01:41:06.351542",
+  "grounding": {
+    "boxes": [],
+    "labels": [],
+    "timestamp": "2025-11-03T22:17:07.366891"
+  },
+  "vqa": {
+    "items": [
+      {
+        "question": "test2",
+        "answer": "There is moderate evidence supporting a positive answer to your question."
+      }
+    ],
+    "timestamp": "2025-11-04T01:41:06.351542"
+  }
+}
