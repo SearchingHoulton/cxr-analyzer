@@ -84,11 +84,15 @@ git push origin feature/vqa
 
    > 我导出的环境只有基础的flask需要的配置，其他支持功能模型运行的需要自行在该虚拟环境中下载然后导出。
 
-2. 两种方式：
+2. 两种方式：① 自己写接口上传；② 就放文件，我来添加
 
-   + 自己写接口，把代码上传到services里面，新建一个文件夹，可以用**模型名字**命名
+   + 自己写接口
 
-     上传代码，可以注释掉其他flask代码，然后写一个新的带有区分度的接口，
+     > 前后端交互我后期加上
+
+     把代码上传到services里面，新建一个文件夹，可以用**模型名字**命名。
+
+     上传代码，可以注释掉其他flask代码，然后写一个新的带有区分度的接口，再用request查看结果
 
      举例子，我用chatgpt生成的
 
@@ -99,7 +103,7 @@ git push origin feature/vqa
      
      @app.route("/predict", methods=["POST"])
      def predict():
-         data = request.json  # 接收队员传来的数据
+         data = request.json  # 接收传来的数据
          result = {"output": data}  # 这里改成实际处理逻辑
          return jsonify(result)
      
@@ -118,7 +122,9 @@ git push origin feature/vqa
      print(res.json())
      ```
 
-   + 1
+   + 就放一个文件
+
+     service创建一个文件夹，名字用模型、名字啥的命名，能让别人看得懂就行，然后把自己的代码和一些内容放上去。
 
 3. git提交
 
@@ -154,9 +160,19 @@ git push origin feature/vqa
 
    + 不是第一次上传
 
+     git add . 会把当前目录及子目录下所有**未跟踪文件**和**已修改文件**全部加入暂存区。
+
      ```bash
      git add .
-     git commit -m "readme说明"
+     git commit -m "<简短说明>"
+     git push
+     ```
+
+     如果只有一些指定文件更新
+
+     ```bash		
+     git add environment.yml requirements.txt
+     git commit -m "<简短说明>"
      git push
      ```
 
