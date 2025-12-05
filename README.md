@@ -24,17 +24,26 @@ A Flask-based platform for multi-functional chest X-ray analysis, integrating im
    ```bash
    git clone https://github.com/username/CXR-Analyzer.git
    cd CXR-Analyzer
+
 2. Create and activate a virtual environment:
 
    ```bash
    conda env create -f environment.yml
    conda activate cxr_env
    ```
-3. Run the Flask app:
+
+3. Model Installation：下载到models文件中
+
+   + Lingshu: https://huggingface.co/lingshu-medical-mllm/Lingshu-7B/tree/main
+   + Maira: https://huggingface.co/microsoft/maira-2/tree/main
+   + Medgemma: [google/medgemma-4b-it at main](https://huggingface.co/google/medgemma-4b-it/tree/main)
+
+4. Run the Flask app:
 
    ```bash
    python app.py
    ```
+
 5. Open the app in your browser:
 
    ```
