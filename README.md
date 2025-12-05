@@ -22,8 +22,8 @@ A Flask-based platform for multi-functional chest X-ray analysis, integrating im
 ## Installation
 1. Clone the repository:
    ```bash
-   git clone https://github.com/username/CXR-Analyzer.git
-   cd CXR-Analyzer
+   git clone https://github.com/SearchingHoulton/cxr-analyzer.git
+   cd cxr-analyzer
 
 2. Create and activate a virtual environment:
 
