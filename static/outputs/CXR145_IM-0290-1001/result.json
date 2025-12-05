@@ -1,0 +1,110 @@
+{
+  "classification": {
+    "items": [
+      {
+        "observation": "No Finding",
+        "confidence": 27,
+        "present": false
+      },
+      {
+        "observation": "Enlarged Cardiomediastinum",
+        "confidence": 27,
+        "present": false
+      },
+      {
+        "observation": "Cardiomegaly",
+        "confidence": 7,
+        "present": false
+      },
+      {
+        "observation": "Lung Opacity",
+        "confidence": 32,
+        "present": false
+      },
+      {
+        "observation": "Lung Lesion",
+        "confidence": 65,
+        "present": true
+      },
+      {
+        "observation": "Edema",
+        "confidence": 9,
+        "present": false
+      },
+      {
+        "observation": "Consolidation",
+        "confidence": 44,
+        "present": false
+      },
+      {
+        "observation": "Pneumonia",
+        "confidence": 42,
+        "present": false
+      },
+      {
+        "observation": "Atelectasis",
+        "confidence": 70,
+        "present": true
+      },
+      {
+        "observation": "Pneumothorax",
+        "confidence": 12,
+        "present": false
+      },
+      {
+        "observation": "Pleural Effusion",
+        "confidence": 82,
+        "present": true
+      },
+      {
+        "observation": "Pleural Other",
+        "confidence": 5,
+        "present": false
+      },
+      {
+        "observation": "Fracture",
+        "confidence": 12,
+        "present": false
+      },
+      {
+        "observation": "Support Devices",
+        "confidence": 15,
+        "present": false
+      }
+    ],
+    "timestamp": "2025-11-26T12:45:10.150185"
+  },
+  "timestamp": "2025-11-26T12:45:10.191004",
+  "report": {
+    "findings": "The heart size is within normal limits.\nThere is a large right-sided pleural effusion with associated atelectasis.\nNo focal airspace consolidation.\nNo pneumothorax.\nNo acute bony abnormality.",
+    "impressions": "Large right-sided pleural effusion with associated atelectasis.",
+    "timestamp": "2025-11-26T12:45:10.191004"
+  },
+  "vqa": {
+    "items": [
+      {
+        "question": "Is there consolidation?",
+        "answer": "Based on the chest X-ray provided, there is significant right-sided pleural effusion, which appears as a large opacity obscuring the right hemidiaphragm and right lung fields. This suggests fluid accumulation in the pleural space on the right side.\nThere is no clear evidence of consolidation in the left lung. The left lung appears relatively clear.\nTherefore, the answer is yes, there is consolidation (specifically, a large pleural effusion)."
+      },
+      {
+        "question": "Are lungs clear?",
+        "answer": "Based on the chest X-ray provided, the lungs are not clear. There is a significant opacity in the right hemithorax, suggesting a large pleural effusion. The left lung appears relatively clear, but there is some increased density in the left lung base.\nKey findings:\n\nRight Hemithorax Opacity: This is the most prominent finding, indicating a large amount of fluid in the pleural space.\nLeft Lung: Appears relatively clear, but there is some increased density in the left lung base.\nMediastinum: The mediastinum appears midline.\nHeart Size: The heart size is within normal limits.\n\nConclusion:\nThe most likely diagnosis is a large right pleural effusion. The left lung base opacity could be due to atelectasis, pneumonia, or other pathology. Further evaluation is needed to determine the cause of the right pleural effusion and the left lung base opacity.\n**Disclaimer"
+      }
+    ],
+    "timestamp": "2025-11-26T12:45:10.184883"
+  },
+  "grounding": {
+    "boxes": [
+      [
+        0.0546875,
+        0.27403846153846156,
+        0.443359375,
+        0.6634615384615384
+      ]
+    ],
+    "labels": [
+      "There is a large right pleural effusion."
+    ],
+    "timestamp": "2025-11-26T12:45:10.174234"
+  }
+}

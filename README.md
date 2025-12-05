@@ -1,186 +1,85 @@
 
 
-[TOC]
-
 # cxr-analyzer
 
-AI-powered chest X-ray analysis platform
+A Flask-based platform for multi-functional chest X-ray analysis, integrating image classification, report generation, and VQA.
 
-## 环境
+## Table of Contents
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [License](#license)
 
-```bash
-# 创建环境
-conda create -n cxr_env python=3.9 -y
-# 激活环境
-conda activate cxr_env
-# 安装 Flask
-pip install flask
-```
+## Features
+- Multi-class chest X-ray classification (14 categories)
+- Automated grounded report generation
+- Phrase-level localization for abnormalities
+- Visual Question Answering (VQA) support
+- Local history and report saving
+- Modular interface for small- and large-scale users
 
-```bash
-# 进入项目
-cd "/mnt/e/STAT7008A Programming for data science/4. Project/Topic 6 Agentic Al for Chest X-ray Analysis/CXR Analyzer"
-code .
-```
+## Installation
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/username/CXR-Analyzer.git
+   cd CXR-Analyzer
+2. Create and activate a virtual environment:
 
-1. 导出项目配置
-   + 先激活虚拟环境 `conda activate cxr_env `
-   + 然后导出 `conda env export --no-builds --ignore-channels > environment.yml`
-
-## git提交
-
-```bash
-# 初始化
-git init
-git remote add origin https://github.com/SearchingHoulton/cxr-analyzer.git
-git add .
-git commit -m "initial commit"
-git branch -M main
-git push -u origin main
-```
-
-```bash
-# 1. 拉取远端最新 main
-git checkout main
-git pull origin main
-
-# 2. 创建 dev 分支
-git checkout -b dev
-git push -u origin dev
-
-# 3. 创建四个 feature 分支
-
-# 4. 创建 fix 分支
-git checkout dev
-git checkout -b fix/general
-git push -u origin fix/general
-```
-
-```bash
-# 确认分支
-git branch
-# 先切换分支再添加新文件
-git switch feature/vqa
-# 添加当前目录所有文件
-git add .
-# 说明添加的东西
-git commit -m "feat: xxx"
-# 推送到远端。如果第一次推送该分支加 -u 绑定远端，git push -u origin feature/vqa
-git push origin feature/vqa
-```
-
-## 开发说明
-
-1. 环境导入和激活
-
+   ```bash
    conda env create -f environment.yml
    conda activate cxr_env
-
-   开发过程中自行安装依赖
-
-   pip install torch torchvision
-
-   ...
-
-   最后统一导出依赖
-
-   + pip安装的包：pip list --format=freeze > requirements.txt
-   + conda安装的包：conda env export --no-builds --ignore-channels > environment.yml
-
-   > 我导出的环境只有基础的flask需要的配置，其他支持功能模型运行的需要自行在该虚拟环境中下载然后导出。
-
-2. 两种方式：① 自己写接口上传；② 就放文件，我来添加
-
-   + 自己写接口
-
-     > 前后端交互我后期加上
-
-     把代码上传到services里面，新建一个文件夹，可以用**模型名字**命名。
-
-     上传代码，可以注释掉其他flask代码，然后写一个新的带有区分度的接口，再用request查看结果
-
-     举例子，我用chatgpt生成的
-
-     ```python
-     from flask import Flask, request, jsonify
-     
-     app = Flask(__name__)
-     
-     @app.route("/predict", methods=["POST"])
-     def predict():
-         data = request.json  # 接收传来的数据
-         result = {"output": data}  # 这里改成实际处理逻辑
-         return jsonify(result)
-     
-     if __name__ == "__main__":
-         app.run(debug=True)
-     
-     ```
-
-     然后测试
-
-     ```python
-     import requests
-     
-     data = {"x": 1}
-     res = requests.post("http://127.0.0.1:4090/predict", json=data)
-     print(res.json())
-     ```
-
-   + 就放一个文件
-
-     service创建一个文件夹，名字用模型、名字啥的命名，能让别人看得懂就行，然后把自己的代码和一些内容放上去。
-
-3. git提交
-
-   首先查看当前在的分支，那个打星号的说明是当前在的branch
+   ```
+3. Run the Flask app:
 
    ```bash
-   $ git branch
-     dev
-     feature/jiangyaru
-     feature/juhaoyang
-     feature/maxiaohan
-     feature/xiongrui
-   * fix/general
-     main
+   python app.py
+   ```
+5. Open the app in your browser:
+
+   ```
+   http://localhost:4090
    ```
 
-   上传的时候**<u>选择</u>**对应的名字进入分支
+## Usage
 
-   ```bash
-   git checkout feature/juhaoyang
-   git checkout feature/xiongrui
-   ```
+1. **Initial Page**
 
-   然后上传
+   ![Initial page of CXR Analyzer](figure/image-20251125200451487.png)
 
-   + 如果是第一次上传
+   - **Research Records (Left):** Search and click to view past analysis, including reports, classification, and VQA answers. All records are stored locally in JSON.  
+   - **Image Upload (Middle):** Drag-and-drop or select files for analysis.  
+   - **Q&A (Right):** Chat interface with quick question buttons for easy interaction.
 
-     ```bash
-     git add .
-     git commit -m "首次提交 <简短说明>"
-     git push -u origin feature/juhaoyang  # -u 会关联远程分支
-     ```
+2. **Historical Analysis**
 
-   + 不是第一次上传
+   ![Page after selecting a historical analysis](figure/image-20251125200802927.png)
 
-     git add . 会把当前目录及子目录下所有**未跟踪文件**和**已修改文件**全部加入暂存区。
+   - Clear image area with the trash button to start a new analysis.  
+   - Save results to access later.  
+   - Report tab shows structured X-ray findings; Observation tab shows detected features.
 
-     ```bash
-     git add .
-     git commit -m "<简短说明>"
-     git push
-     ```
+3. **Report and Observations**
 
-     如果只有一些指定文件更新
+   ![Generated Chest X-Ray Report](figure/image-20251125202917712.png)  
+   ![CheXpert Observations interface](figure/image-20251125202945985.png)
 
-     ```bash		
-     git add environment.yml requirements.txt
-     git commit -m "<简短说明>"
-     git push
-     ```
+   - Backend loads the model and generates reports automatically.  
+   - Observation panel shows 14 categories with confidence bars for quick assessment.
 
-## 注意
+4. **Visual Question Answering (VQA)**
 
-1. 如果前一天还打得开，今天不行，`wsl --shutdown`后重新开。
+   ![VQA input interface and response](figure/image-20251125205033547.png)  
+   ![Follow-up question response](figure/image-20251125210230253.png)
+
+   - Click common questions to auto-fill chat.  
+   - Ask follow-up questions based on historical analysis.  
+   - Model returns answers within ~2 minutes.
+
+5. **Grounding Functionality**
+
+   ![Activating grounding function](figure/image-20251125210754853.png)  
+   ![Grounding results with detected regions](figure/image-20251125211048352.png)
+
+   - Toggle grounding to highlight anatomical regions and key findings with bounding boxes.  
+   - Supports visual confirmation of abnormalities.

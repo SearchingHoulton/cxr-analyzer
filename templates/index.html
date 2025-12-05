@@ -242,19 +242,134 @@
                 transform: translateY(0);
             }
         }
+        /* 消息提示样式 */
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            padding: 12px 24px;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            background-color: rgba(0, 0, 0, 0.75);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            z-index: 9999;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        .notification.success {
+            background-color: #10b981; /* 绿色-成功 */
+        }
+        .notification.info {
+            background-color: #3b82f6; /* 蓝色-信息 */
+        }
+        .notification.warning {
+            background-color: #f59e0b; /* 黄色-警告 */
+        }
+
+        /* 设置面板整体 */
+        #settings-panel {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(12px);
+            border-left: 1px solid rgba(229, 231, 235, 0.8);
+            box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        #settings-panel h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        #settings-panel label {
+            color: #374151;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        #settings-panel select {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            width: 100%;
+            color: #1e293b;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        #settings-panel select:hover {
+            border-color: #165DFF;
+            background-color: #eff6ff;
+        }
+
+        #settings-panel select:focus {
+            border-color: #165DFF;
+            box-shadow: 0 0 0 2px rgba(22, 93, 255, 0.2);
+            outline: none;
+        }
+
+        /* 关闭按钮 */
+        #settings-panel #close-settings {
+            transition: all 0.2s ease;
+        }
+
+        #settings-panel #close-settings:hover {
+            transform: rotate(90deg);
+        }
+
+        #settings-panel.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        #settings-panel:not(.show) {
+            opacity: 0;
+            transform: translateX(100%);
+        }
+        /* 保存按钮 */
+        .btn-save-settings {
+            background: linear-gradient(135deg, #165DFF 0%, #0ea5e9 100%);
+            color: #fff;
+            font-weight: 600;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .btn-save-settings:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(22, 93, 255, 0.35);
+        }
+
+        .btn-save-settings:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
     </style>
 </head>
 <body class="font-inter bg-neutral min-h-screen flex flex-col">
     <!-- 顶部导航栏 -->
     <header class="bg-white shadow-md sticky top-0 z-50 transition-all duration-300">
+        
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <!-- 左边：logo 和 标签 -->
             <div class="flex items-center space-x-2">
                 <i class="fa fa-heartbeat text-primary text-2xl"></i>
                 <h1 class="text-xl md:text-2xl font-bold text-gray-800">CXR Analyzer</h1>
             </div>
-            <button class="md:hidden text-gray-600 hover:text-primary">
-                <i class="fa fa-bars text-xl"></i>
-            </button>
+        
+            <!-- 右边：配置区域 -->
+            <!-- <button id="settings-btn" class="text-gray-600 hover:text-primary" title="Settings">
+                <i class="fa fa-cog text-xl"></i>
+            </button> -->
+            
         </div>
     </header>
 
@@ -268,12 +383,16 @@
                 <div class="p-4 border-b border-gray-200">
                     <div class="flex items-center justify-between mb-3">
                         <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Recent Analysis</h3>
-                        <button class="text-xs text-primary hover:text-primary/80 transition-colors">
-                            Clear All
-                        </button>
+                        <!-- <button class="text-xs text-primary hover:text-primary/80 transition-colors">
+                            Clear
+                        </button> -->
                     </div>
-                    <div class="relative">
+                    <!-- <div class="relative">
                         <input type="text" placeholder="Search history..." class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary pl-9">
+                        <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                    </div> -->
+                    <div class="relative">
+                        <input id="history-search-input" type="text" placeholder="Search history..." class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary pl-9">
                         <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
                     </div>
                 </div>
@@ -342,6 +461,8 @@
                                 <button id="remove-image-btn" class="text-red-500 hover:text-red-600 transition-colors p-2 rounded-lg hover:bg-red-50" title="Remove">
                                     <i class="fa fa-trash"></i>
                                 </button>
+                                <!-- 消息提示容器 -->
+                                <div id="notification" class="notification"></div>
                             </div>
                         </div>
                         <div class="relative bg-gray-900 rounded-xl overflow-hidden" style="height: 400px;">
@@ -381,9 +502,9 @@
                                         <h4 class="text-lg font-semibold text-gray-800">Chest X-Ray Report</h4>
                                         <p class="text-sm text-gray-500 mt-1">Comprehensive medical analysis report</p>
                                     </div>
-                                    <button class="px-3 py-1 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary/90 transition-colors">
+                                    <!-- <button class="px-3 py-1 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary/90 transition-colors">
                                         <i class="fa fa-download mr-1"></i>Export
-                                    </button>
+                                    </button> -->
                                 </div>
                                 
                                 <!-- Report 内容-->
@@ -393,28 +514,18 @@
                                 </div>
                                 
                                 <div id="report-data" class="space-y-6">
-                                    <div class="p-4 bg-gray-50 rounded-lg">
-                                        <h5 class="text-base font-semibold text-gray-800 mb-3">Patient Information</h5>
-                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
-                                            <div><span class="font-medium text-gray-700">Name:</span> <span id="patient-name">-</span></div>
-                                            <div><span class="font-medium text-gray-700">Age:</span> <span id="patient-age">-</span></div>
-                                            <div><span class="font-medium text-gray-700">Gender:</span> <span id="patient-gender">-</span></div>
-                                        </div>
-                                    </div>
-                                    
                                     <div class="space-y-3 text-gray-700">
-                                        <h5 class="text-base font-semibold text-gray-800">Findings Summary</h5>
-                                        <p class="text-sm leading-relaxed" id="findings-summary">
-                                            No report generated yet. Please ensure the X-ray analysis is complete to generate a comprehensive report.
-                                        </p>
-                                    </div>
-                                    
-                                    <div class="space-y-3 text-gray-700">
-                                        <h5 class="text-base font-semibold text-gray-800">Recommendations</h5>
-                                        <ul class="text-sm leading-relaxed list-disc pl-5" id="recommendations">
-                                            <li>Review observation results for detailed AI-detected findings.</li>
-                                            <li>Consult a radiologist for professional interpretation.</li>
+                                        <h5 class="text-base font-semibold text-gray-800">Findings</h5>
+                                        <ul class="text-sm leading-relaxed list-disc pl-5" id="findings">
+                                            No report generated yet. 
                                         </ul>
+                                    </div>
+                                    
+                                    <div class="space-y-3 text-gray-700">
+                                        <h5 class="text-base font-semibold text-gray-800">Impressions</h5>
+                                        <p class="text-sm leading-relaxed" id="impressions">
+                                            No report generated yet.
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -447,7 +558,7 @@
                                             <i class="fa fa-bar-chart text-primary mr-2"></i>
                                             Confidence Distribution
                                         </h5>
-                                        <div style="height: 200px;">
+                                        <div class="w-full">
                                             <canvas id="classification-chart"></canvas>
                                         </div>
                                     </div>
@@ -518,10 +629,137 @@
         </aside>
     </main>
 
+<!-- 设置面板 -->
+<div id="settings-panel" class="fixed top-0 right-0 h-full w-80 bg-white shadow-xl p-6 transform translate-x-full transition-transform z-50">
+    <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold text-gray-800">Settings</h3>
+        <button id="close-settings" class="text-gray-500 hover:text-red-500">
+            <i class="fa fa-times text-xl"></i>
+        </button>
+    </div>
+
+    <div class="space-y-6">
+        <!-- Classification -->
+        <div>
+            <label for="classification-model" class="block text-gray-700 font-medium mb-1">Classification Model</label>
+            <select id="classification-model" class="w-full border-gray-300 rounded-md p-2">
+                <option>RGRG</option>
+                <option>CMCRL</option>
+                <option>Chexagent</option>
+                <option>MAIRA</option>
+                <option>Medgemma</option>
+                <option>Lingshu</option>
+            </select>
+        </div>
+
+        <!-- Grounding -->
+        <div>
+            <label for="grounding-model" class="block text-gray-700 font-medium mb-1">Grounding Model</label>
+            <select id="grounding-model" class="w-full border-gray-300 rounded-md p-2">
+                <option>RGRG</option>
+                <option>CMCRL</option>
+                <option>Chexagent</option>
+                <option>MAIRA</option>
+                <option>Medgemma</option>
+                <option>Lingshu</option>
+            </select>
+        </div>
+
+        <!-- VQA -->
+        <div>
+            <label for="vqa-model" class="block text-gray-700 font-medium mb-1">VQA Model</label>
+            <select id="vqa-model" class="w-full border-gray-300 rounded-md p-2">
+                <option>Chexagent</option>
+                <option>MAIRA</option>
+                <option>Medgemma</option>
+                <option>Lingshu</option>
+            </select>
+        </div>
+
+        <!-- Report -->
+        <div>
+            <label for="report-model" class="block text-gray-700 font-medium mb-1">Report Model</label>
+            <select id="report-model" class="w-full border-gray-300 rounded-md p-2">
+                <option>Chexagent</option>
+                <option>MAIRA</option>
+                <option>Medgemma</option>
+                <option>Lingshu</option>
+            </select>
+        </div>
+
+        <div class="mt-6">
+            <button id="save-settings" class="btn-save-settings w-full">
+                <i class="fa fa-save mr-2"></i>Save Settings
+            </button>
+        </div>
+    </div>
+</div>
+
+
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <!-- 记得要加type="module"，不然里面用了ES6 import/export语法，默认情况下浏览器不认普通<script>的import -->
 <script type="module" src="/static/js/main.js"></script> 
+<script>
+const settingsBtn = document.getElementById('settings-btn');
+const settingsPanel = document.getElementById('settings-panel');
+const closeSettings = document.getElementById('close-settings');
+const resetBtn = document.getElementById('reset-settings');
+
+const settingsConfig = {
+    classification: 'Chexagent',
+    grounding: 'MAIRA',
+    report: 'Medgemma',
+    vqa: 'Lingshu'
+};
+
+// 打开/关闭面板
+settingsBtn.addEventListener('click', () => settingsPanel.classList.add('show'));
+closeSettings.addEventListener('click', () => settingsPanel.classList.remove('show'));
+
+// 样式补充
+const style = document.createElement('style');
+style.textContent = `
+#settings-panel.show { transform: translateX(0); }
+`;
+document.head.appendChild(style);
+
+// 初始化下拉菜单
+function loadSettings() {
+    document.getElementById('classification-model').value = settingsConfig.classification;
+    document.getElementById('grounding-model').value = settingsConfig.grounding;
+    document.getElementById('report-model').value = settingsConfig.report;
+    document.getElementById('vqa-model').value = settingsConfig.vqa;
+}
+
+// 保存用户选择
+function updateSettings() {
+    settingsConfig.classification = document.getElementById('classification-model').value;
+    settingsConfig.grounding = document.getElementById('grounding-model').value;
+    settingsConfig.report = document.getElementById('report-model').value;
+    settingsConfig.vqa = document.getElementById('vqa-model').value;
+    console.log('✅ Current Settings:', settingsConfig);
+}
+
+// 下拉监听
+['classification-model', 'grounding-model', 'report-model', 'vqa-model'].forEach(id => {
+    document.getElementById(id).addEventListener('change', updateSettings);
+});
+
+// 重置为默认值
+resetBtn.addEventListener('click', () => {
+    settingsConfig.classification = 'Chexagent';
+    settingsConfig.grounding = 'MAIRA';
+    settingsConfig.report = 'Medgemma';
+    settingsConfig.vqa = 'Lingshu';
+    loadSettings();
+    console.log('⚙️ Reset to default:', settingsConfig);
+});
+
+document.addEventListener('DOMContentLoaded', loadSettings);
+
+</script>
 </body>
 </html>
 </html>

@@ -6,7 +6,9 @@ import requests
 from PIL import Image
 
 # ===================== 1. 配置模型路径与设备 =====================
-local_model_path = Path("./maira-data")  # 替换为你的本地模型路径
+# local_model_path = Path("./maira-data")  # 替换为你的本地模型路径、
+# local_model_path = Path(r"G:\project\CXR_Analyzer\models\Maira-2")  # 替换为你的本地模型路径
+local_model_path = Path(r"G:\project\CXR_Analyzer\models\Maira-2") 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  # 自动选择设备（优先GPU，否则CPU）
 
 # ===================== 2. 加载处理器与模型 =====================
@@ -28,7 +30,8 @@ model = load_checkpoint_and_dispatch(
     checkpoint=local_model_path,
     device_map="auto",
     no_split_module_classes=["Maira2DecoderLayer"],
-    dtype=torch.float16
+    dtype=torch.float16,
+    offload_folder="/home/wayner/tmp"  # ↓ 必填时可防止卡死
 )
 
 model.eval()
@@ -84,3 +87,4 @@ prompt_length = processed_inputs["input_ids"].shape[-1]
 decoded_text = processor.decode(output_decoding[0][prompt_length:], skip_special_tokens=True).lstrip()
 prediction = processor.convert_output_to_plaintext_or_grounded_sequence(decoded_text)
 print("解析后的预测报告：", prediction)
+# 解析后的预测报告： [('There is a large right pleural effusion.', [(0.055, 0.275, 0.445, 0.665)]), ('The left lung is clear.', None), ('No pneumothorax is identified.', None), ('The cardiomediastinal silhouette is within normal limits.', None), ('The visualized osseous structures are unremarkable.', None)]

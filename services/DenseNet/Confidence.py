@@ -20,7 +20,8 @@ class DenseNet121_CheXpert(torch.nn.Module):
 # 加载模型
 REPO_ID = "itsomk/chexpert-densenet121"
 FILENAME = "pytorch_model.safetensors"
-local_path = hf_hub_download(repo_id=REPO_ID, filename=FILENAME)
+local_path = r"G:\project\CXR_Analyzer\models\models--itsomk--chexpert-densenet121\snapshots\81be45e4d43011e8f50e17d002190c76cb069edd\pytorch_model.safetensors"
+# local_path = hf_hub_download(repo_id=REPO_ID, filename=FILENAME)
 state = load_file(local_path)  
 model = DenseNet121_CheXpert(num_labels=14, pretrained=False)
 model.load_state_dict(state, strict=False)
@@ -56,9 +57,8 @@ def confidence_dict(image_path:str):
 
 if __name__ == "__main__":
     import sys
-    image_path = sys.argv[1]  # 替换为你的图片路径
+    # image_path = sys.argv[1]  # 替换为你的图片路径
+    image_path = r"G:\project\CXR_Analyzer\services\687754ce-7420bfd3-0a19911f-a27a3916-9019cd53.jpg"
     results = confidence_dict(image_path)
     for label, prob in results.items():
         print(f"{label}: {prob:.4f}")
-
-

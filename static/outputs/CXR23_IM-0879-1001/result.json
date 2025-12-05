@@ -1,0 +1,83 @@
+{
+  "classification": {
+    "items": [
+      {
+        "observation": "No Finding",
+        "confidence": 81,
+        "present": true
+      },
+      {
+        "observation": "Enlarged Cardiomediastinum",
+        "confidence": 33,
+        "present": false
+      },
+      {
+        "observation": "Cardiomegaly",
+        "confidence": 13,
+        "present": false
+      },
+      {
+        "observation": "Lung Opacity",
+        "confidence": 21,
+        "present": false
+      },
+      {
+        "observation": "Lung Lesion",
+        "confidence": 69,
+        "present": true
+      },
+      {
+        "observation": "Edema",
+        "confidence": 0,
+        "present": false
+      },
+      {
+        "observation": "Consolidation",
+        "confidence": 33,
+        "present": false
+      },
+      {
+        "observation": "Pneumonia",
+        "confidence": 69,
+        "present": true
+      },
+      {
+        "observation": "Atelectasis",
+        "confidence": 12,
+        "present": false
+      },
+      {
+        "observation": "Pneumothorax",
+        "confidence": 21,
+        "present": false
+      },
+      {
+        "observation": "Pleural Effusion",
+        "confidence": 10,
+        "present": false
+      },
+      {
+        "observation": "Pleural Other",
+        "confidence": 44,
+        "present": false
+      },
+      {
+        "observation": "Fracture",
+        "confidence": 55,
+        "present": true
+      },
+      {
+        "observation": "Support Devices",
+        "confidence": 1,
+        "present": false
+      }
+    ],
+    "timestamp": "2025-11-20T15:11:01.434422"
+  },
+  "timestamp": "2025-11-20T15:11:01.452528",
+  "report": {
+    "findings": "The heart size and pulmonary vascularity appear within normal limits.\nThe lungs are free of focal airspace disease.\nNo pleural effusion or pneumothorax is seen.\nCalcified granuloma noted in the right lung base.\nBony structures appear intact.",
+    "impressions": "No evidence of active disease.",
+    "timestamp": "2025-11-20T15:11:01.452528"
+  }
+}

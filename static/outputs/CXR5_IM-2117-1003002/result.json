@@ -1,0 +1,83 @@
+{
+  "classification": {
+    "items": [
+      {
+        "observation": "No Finding",
+        "confidence": 77,
+        "present": true
+      },
+      {
+        "observation": "Enlarged Cardiomediastinum",
+        "confidence": 41,
+        "present": false
+      },
+      {
+        "observation": "Cardiomegaly",
+        "confidence": 16,
+        "present": false
+      },
+      {
+        "observation": "Lung Opacity",
+        "confidence": 32,
+        "present": false
+      },
+      {
+        "observation": "Lung Lesion",
+        "confidence": 55,
+        "present": true
+      },
+      {
+        "observation": "Edema",
+        "confidence": 7,
+        "present": false
+      },
+      {
+        "observation": "Consolidation",
+        "confidence": 25,
+        "present": false
+      },
+      {
+        "observation": "Pneumonia",
+        "confidence": 68,
+        "present": true
+      },
+      {
+        "observation": "Atelectasis",
+        "confidence": 28,
+        "present": false
+      },
+      {
+        "observation": "Pneumothorax",
+        "confidence": 5,
+        "present": false
+      },
+      {
+        "observation": "Pleural Effusion",
+        "confidence": 7,
+        "present": false
+      },
+      {
+        "observation": "Pleural Other",
+        "confidence": 42,
+        "present": false
+      },
+      {
+        "observation": "Fracture",
+        "confidence": 50,
+        "present": true
+      },
+      {
+        "observation": "Support Devices",
+        "confidence": 1,
+        "present": false
+      }
+    ],
+    "timestamp": "2025-11-20T14:55:49.308828"
+  },
+  "timestamp": "2025-11-20T14:55:49.316765",
+  "report": {
+    "findings": "The heart size and pulmonary vascularity appear within normal limits.\nThe lungs are free of focal airspace disease.\nNo pleural effusion or pneumothorax is seen.\nCalcified granuloma in the right upper lobe.",
+    "impressions": "No evidence of active disease.",
+    "timestamp": "2025-11-20T14:55:49.316765"
+  }
+}

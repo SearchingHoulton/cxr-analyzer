@@ -1,40 +1,92 @@
 {
-  "timestamp": "2025-11-04T01:51:59.112718",
-  "grounding": {
-    "boxes": [
-      [
-        0.04296875,
-        0.21484375,
-        0.35546875,
-        0.36328125
-      ],
-      [
-        0.390625,
-        0.234375,
-        0.625,
-        0.46875
-      ],
-      [
-        0.15625,
-        0.546875,
-        0.3125,
-        0.703125
-      ]
+  "classification": {
+    "items": [
+      {
+        "observation": "No Finding",
+        "confidence": 91,
+        "present": true
+      },
+      {
+        "observation": "Enlarged Cardiomediastinum",
+        "confidence": 28,
+        "present": false
+      },
+      {
+        "observation": "Cardiomegaly",
+        "confidence": 21,
+        "present": false
+      },
+      {
+        "observation": "Lung Opacity",
+        "confidence": 16,
+        "present": false
+      },
+      {
+        "observation": "Lung Lesion",
+        "confidence": 45,
+        "present": false
+      },
+      {
+        "observation": "Edema",
+        "confidence": 6,
+        "present": false
+      },
+      {
+        "observation": "Consolidation",
+        "confidence": 16,
+        "present": false
+      },
+      {
+        "observation": "Pneumonia",
+        "confidence": 63,
+        "present": true
+      },
+      {
+        "observation": "Atelectasis",
+        "confidence": 7,
+        "present": false
+      },
+      {
+        "observation": "Pneumothorax",
+        "confidence": 2,
+        "present": false
+      },
+      {
+        "observation": "Pleural Effusion",
+        "confidence": 2,
+        "present": false
+      },
+      {
+        "observation": "Pleural Other",
+        "confidence": 33,
+        "present": false
+      },
+      {
+        "observation": "Fracture",
+        "confidence": 44,
+        "present": false
+      },
+      {
+        "observation": "Support Devices",
+        "confidence": 1,
+        "present": false
+      }
     ],
-    "labels": [
-      "There is a large right pleural effusion.",
-      "Small opacity left lung",
-      "Possible nodule lower region"
-    ],
-    "timestamp": "2025-11-04T01:51:59.036312"
+    "timestamp": "2025-11-20T15:25:38.008845"
+  },
+  "timestamp": "2025-11-20T15:25:38.040887",
+  "report": {
+    "findings": "The heart size is within normal limits.\nThere is no focal airspace opacity.\nNo pneumothorax or pleural effusion.\nOsseous structures are intact.",
+    "impressions": "No acute cardiopulmonary abnormality.",
+    "timestamp": "2025-11-20T15:25:38.040887"
   },
   "vqa": {
     "items": [
       {
-        "question": "good",
-        "answer": "No significant abnormalities detected in relation to your question."
+        "question": "Is there Pneumonia",
+        "answer": "Based on the chest X-ray provided, it is difficult to definitively rule out pneumonia. However, there are no obvious signs of consolidation or infiltrates that would strongly suggest pneumonia.\nHere's a breakdown of what I see and why it's not conclusive:\n\nLung Fields: The lung fields appear relatively clear. There are no obvious areas of increased density or opacity that would be typical of pneumonia.\nHeart Size: The heart size appears within normal limits.\nMediastinum: The mediastinum (the space between the lungs containing the heart, great vessels, trachea, etc.) appears normal.\nBones: The bones are intact.\n\nHowever, it's important to consider:\n\nImage Quality: The image quality is not ideal. It's difficult to assess subtle findings in a low-resolution image.\nPatient History: The patient's clinical history is crucial. Symptoms"
       }
     ],
-    "timestamp": "2025-11-04T01:51:59.112718"
+    "timestamp": "2025-11-20T15:25:38.019267"
   }
 }

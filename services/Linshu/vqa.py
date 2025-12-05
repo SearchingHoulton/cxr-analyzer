@@ -1,26 +1,13 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
 
 
-import torch
-from transformers import Qwen2_5_VLForConditionalGeneration, AutoProcessor
 from qwen_vl_utils import process_vision_info
 from PIL import Image
 import io
 
-# 加载模型（
-MODEL_PATH = "modelpath"
 
-print("[VQA] loading...")
-model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
-    MODEL_PATH,
-    torch_dtype=torch.bfloat16,
-    device_map="auto"
-)
-processor = AutoProcessor.from_pretrained(MODEL_PATH)
-print("[VQA] loading completed")
 
 # 封装函数供 Flask 调用
 def vqa(image_bytes: bytes, question: str) -> str:
@@ -74,4 +61,3 @@ def vqa(image_bytes: bytes, question: str) -> str:
 
     except Exception as e:
         return f"[VQA error] {str(e)}"
-

@@ -4,7 +4,9 @@ from datetime import datetime
 from services.classify import classify_image # 交互式分类路由
 from services.grounding import visual_grounding # 视觉接地路由
 from services.generate_report import generate_report # 自动生成报告路由
-from services.vqa import vqa # 视觉问答路由
+from services.vqa import get_MedGemma_vqa # 视觉问答路由
+from PIL import Image
+import io
 
 app = Flask(
     __name__,
@@ -24,11 +26,6 @@ UPLOAD_DIR = 'static/uploads'
 OUTPUT_DIR = "static/outputs"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-# 初始化模型（长时间操作，生产时改为懒加载或子进程）
-# clf = ClassificationModel(checkpoint_path='models/checkpoint.pth', device='cuda')
-# gnd = GroundingModel(device='cuda')
-# rpt = ReportGenModel(device='cuda')
-
 # 首页路由，加载网页
 @app.route('/')
 def index():
@@ -38,50 +35,52 @@ def index():
 # 交互式分类路由：对上传的图像运行分类模型，并检测是否存在 CheXpert [7]） 定义的 14 个观测值及其相应的置信度分数。
 # 用到的地方：classification.js
 @app.route('/classify', methods=['POST'])
-def classify():
-    file = request.files.get('image')
-    if not file:
-        return jsonify({'error':'No file uploaded'}), 400
+def classify_route():
+    # 获取图片
+    image_file = request.files['image']  # Flask 接收上传文件
+    image_bytes = image_file.read()
     # 调用图像分类模型，返回14个观测值和相应的置信度分数
-    results = classify_image(file)  
+    results = classify_image(image_bytes)  
     return jsonify(results) 
 
 # 视觉接地路由：可视化 X 射线上关键发现的位置，例如，通过在结节周围绘制边界框或在巩固区域创建分割掩模
-# 用到的地方：还没做好对应的js
+# 用到的地方：ground.js
 @app.route('/grounding', methods=['POST'])
-def grounding():
-    file = request.files.get('image')
-    if not file:
-        return jsonify({'error': 'No file uploaded'}), 400
-    image_bytes = file.read()
+def grounding_route():
+    # 获取图片
+    image_file = request.files['image']  # Flask 接收上传文件
+    image_bytes = image_file.read()
     # 调用模型获取关键区域
     grounding_results = visual_grounding(image_bytes)
     return jsonify(grounding_results)
 
 # 自动生成报告路由：使用调查中的报告生成模型之一为图像生成放射学报告草案（例如，“结果”部分）
-# 用到的地方：还没做好对应的js
+# 用到的地方：report.js
 @app.route('/generate-report', methods=['POST'])
-def generate_report():
-    file = request.files.get('image')
-    if not file:
-        return jsonify({'error': 'No file uploaded'}), 400
-    image_bytes = file.read()
+def generate_report_route():
+    # 获取图片
+    image_file = request.files['image']  # Flask 接收上传文件
+    image_bytes = image_file.read()
     # 调用报告生成模型
     report = generate_report(image_bytes)
     return jsonify(report)
 
 # 视觉问答路由：实现一个简单的界面，用户可以在其中用自然语言询问有关图像的问题（例如，“心脏是否放大？）
-# 用到的地方：
+# 用到的地方：vqa.js
 @app.route('/vqa', methods=['POST'])
-def visual_question_answering():
+def visual_question_answering_route():
     file = request.files.get('image')
+    # 获取图片
+    image_file = request.files['image']  # Flask 接收上传文件
+    image_bytes = image_file.read()
+    # 获取问题
     question = request.form.get('question')
-    if not file or not question:
-        return jsonify({'error': 'Image and question are required'}), 400
-    image_bytes = file.read()
+    # 获取文件名
+    filename = file.filename
+    folder_name = os.path.splitext(filename)[0]  # 去掉后缀名作为 folder_name
     # 调用VQA模型处理问题
-    answer = vqa(image_bytes, question)
-    return jsonify(answer)
+    answer = get_MedGemma_vqa(image_bytes, question, folder_name)
+    return jsonify({"answer": answer})
 
 # ============ 其他操作：创建存储文件夹 ============
 
@@ -134,13 +133,21 @@ def save_result():
         results = {}
 
     timestamp = datetime.now().isoformat()
-    result_data['timestamp'] = timestamp
+
+    # 如果 result_data 是 list，放到 dict 里
+    if isinstance(result_data, list):
+        results[result_type] = {
+            "items": result_data,
+            "timestamp": timestamp
+        }
+    else:
+        # dict 类型就直接添加 timestamp
+        result_data['timestamp'] = timestamp
+        results[result_type] = result_data
 
     # 保存最新记录
     results['timestamp'] = timestamp
-    results[result_type] = result_data
 
-    # 写回文件
     with open(result_file, 'w', encoding='utf-8') as f:
         json.dump(results, f, ensure_ascii=False, indent=2)
 
@@ -174,7 +181,7 @@ def load_result(folder_name):
     else:
         with open(result_file, 'r', encoding='utf-8') as f:
             results = json.load(f)
-            print(f"获取{result_file}数据：", results)
+            # print(f"获取{result_file}数据：", results)
 
     response = {
         "image_path": image_path,

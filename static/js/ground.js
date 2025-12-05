@@ -1,4 +1,4 @@
-import { saveAnalysisResult} from './history.js';
+import { showNotification } from './utils.js'
 
 // 在文件顶部声明
 export let lastBoxes = [];
@@ -12,18 +12,43 @@ export function setLastGrounding(boxes, labels) {
 
 export function drawBoundingBox(boxes, labels) {
     const canvas = document.getElementById('grounding-canvas');
-    if (!canvas) return;
+    const image = document.getElementById('cxr-image');
+    if (!canvas || !image) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+
+    // 容器尺寸
+    const container = image.parentElement;
+    const containerWidth = container.clientWidth;
+    const containerHeight = container.clientHeight;
+
+    // 图片显示尺寸和偏移（考虑 object-contain）
+    const imgAspect = image.naturalWidth / image.naturalHeight;
+    const containerAspect = containerWidth / containerHeight;
+
+    let imgDisplayWidth, imgDisplayHeight;
+    let offsetX = 0, offsetY = 0;
+
+    if (imgAspect > containerAspect) {
+        // 宽度撑满
+        imgDisplayWidth = containerWidth;
+        imgDisplayHeight = containerWidth / imgAspect;
+        offsetY = (containerHeight - imgDisplayHeight) / 2;
+    } else {
+        // 高度撑满
+        imgDisplayHeight = containerHeight;
+        imgDisplayWidth = containerHeight * imgAspect;
+        offsetX = (containerWidth - imgDisplayWidth) / 2;
+    }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     boxes.forEach((box, idx) => {
         const [x1, y1, x2, y2] = box;
-        const startX = x1 * canvas.width;
-        const startY = y1 * canvas.height;
-        const width = (x2 - x1) * canvas.width;
-        const height = (y2 - y1) * canvas.height;
+        const startX = x1 * imgDisplayWidth + offsetX;
+        const startY = y1 * imgDisplayHeight + offsetY;
+        const width = (x2 - x1) * imgDisplayWidth;
+        const height = (y2 - y1) * imgDisplayHeight;
 
         ctx.strokeStyle = 'red';
         ctx.lineWidth = 2;
@@ -35,7 +60,7 @@ export function drawBoundingBox(boxes, labels) {
     });
 }
 
-// visualGrounding.js
+// 监听器负责初始化Canvas大小与事件
 document.addEventListener('DOMContentLoaded', () => {
     const toggle = document.getElementById('visual-grounding-toggle');
     const image = document.getElementById('cxr-image');
@@ -43,15 +68,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const ctx = canvas.getContext('2d');
 
     function resizeCanvas() {
-        canvas.width = image.clientWidth;
-        canvas.height = image.clientHeight;
+        const canvas = document.getElementById('grounding-canvas');
+        const image = document.getElementById('cxr-image');
+        const container = image.parentElement;
+        if (!canvas || !image || !container) return;
+    
+        canvas.width = container.clientWidth;
+        canvas.height = container.clientHeight;
+    
         if (lastBoxes.length > 0) {
             drawBoundingBox(lastBoxes, lastLabels);
         }
     }
 
     window.addEventListener('resize', resizeCanvas);
-    image.addEventListener('load', resizeCanvas);
+    document.getElementById('cxr-image').addEventListener('load', resizeCanvas);
 
     async function imgToFile(img) {
         try {
@@ -63,25 +94,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return null;
         }
     }
-
-    // function drawBoundingBox(boxes, labels) {
-    //     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    //     boxes.forEach((box, idx) => {
-    //         const [x1, y1, x2, y2] = box;
-    //         const startX = x1 * canvas.width;
-    //         const startY = y1 * canvas.height;
-    //         const width = (x2 - x1) * canvas.width;
-    //         const height = (y2 - y1) * canvas.height;
-
-    //         ctx.strokeStyle = 'red';
-    //         ctx.lineWidth = 2;
-    //         ctx.strokeRect(startX, startY, width, height);
-
-    //         ctx.fillStyle = 'red';
-    //         ctx.font = '16px Arial';
-    //         ctx.fillText(labels[idx], startX, startY - 5);
-    //     });
-    // }
 
     async function fetchGrounding(file) {
         if (!file) return { boxes: [], labels: [] };
@@ -131,47 +143,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-
-    // 监听toggle
-    // toggle.addEventListener('change', async () => {
-    //     if (window.isLoadingHistory) return;
-
-    //     // 历史加载时直接显示已有boxes/labels，不触发新分析
-    //     if (window.isLoadingHistory) {
-    //         if (toggle.checked) {
-    //             drawBoundingBox(lastBoxes, lastLabels);
-    //         } else {
-    //             ctx.clearRect(0, 0, canvas.width, canvas.height);
-    //         }
-    //         return;
-    //     }
-    //     // 新分析逻辑
-    //     if (toggle.checked) {
-    //         if (!image) return;
-
-    //         try {
-    //             const file = await imgToFile(image);
-    //             const { boxes, labels } = await fetchGrounding(file);
-    //             // 保存到 lastBoxes/lastLabels
-    //             lastBoxes = boxes;
-    //             lastLabels = labels;
-    //             drawBoundingBox(boxes, labels);
-
-    //             // 保存到后端：一定要传 lastBoxes/lastLabels
-    //             saveAnalysisResult('grounding', { boxes: lastBoxes, labels: lastLabels });
-    //         } catch (err) {
-    //             console.error('Visual grounding failed:', err);
-    //             toggle.checked = false;
-    //         }
-    //     } else {
-    //         ctx.clearRect(0, 0, canvas.width, canvas.height);
-    //         lastBoxes = [];
-    //         lastLabels = [];
-
-    //         // 清空后端记录
-    //         saveAnalysisResult('grounding', { boxes: lastBoxes, labels: lastLabels });
-    //     }
-    // });
     toggle.addEventListener('change', async () => {
         // 如果正在加载历史，则不触发保存
         if (window.isLoadingHistory) return; 
@@ -184,7 +155,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 lastBoxes = boxes;
                 lastLabels = labels;
                 drawBoundingBox(boxes, labels);
-                // saveAnalysisResult('grounding', { boxes: lastBoxes, labels: lastLabels }); // 用户操作保存
+                // 如果没有可画的显示没有通知，有的话显示已经绘制x个box
+                if (boxes.length > 0) {
+                    drawBoundingBox(boxes, labels);
+                    showNotification(`Drawn ${boxes.length} boxes`, 'info');
+                } else {
+                    showNotification('No boxes detected to draw', 'warning');
+                }
             } catch (err) {
                 console.error('Visual grounding failed:', err);
                 toggle.checked = false;
@@ -193,7 +170,6 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             lastBoxes = [];
             lastLabels = [];
-            // saveAnalysisResult('grounding', { boxes: lastBoxes, labels: lastLabels }); // 用户操作保存
         }
     });
     
