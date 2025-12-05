@@ -37,6 +37,7 @@ A Flask-based platform for multi-functional chest X-ray analysis, integrating im
    + Lingshu: https://huggingface.co/lingshu-medical-mllm/Lingshu-7B/tree/main
    + Maira: https://huggingface.co/microsoft/maira-2/tree/main
    + Medgemma: [google/medgemma-4b-it at main](https://huggingface.co/google/medgemma-4b-it/tree/main)
+   + Chexpert: [itsomk/chexpert-densenet121 · Hugging Face](https://huggingface.co/itsomk/chexpert-densenet121)
 
 4. Run the Flask app:
 
